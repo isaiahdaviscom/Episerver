@@ -12,6 +12,7 @@ packages/
 bin/
 obj/
 .sln
+.suo
 
 # Optimizely files
 *license.config
