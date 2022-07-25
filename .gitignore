@@ -13,6 +13,7 @@ bin/
 obj/
 .sln
 .suo
+.csproj
 
 # Optimizely files
 *license.config
