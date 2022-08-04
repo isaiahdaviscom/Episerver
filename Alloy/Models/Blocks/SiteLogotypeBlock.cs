@@ -26,7 +26,7 @@ namespace Alloy.Models.Blocks
                 var url = this.GetPropertyValue(b => b.Url);
 
                 return url == null || url.IsEmpty()
-                    ? new Url("/gfx/logotype.png")
+                    ? new Url("/images/logotype.png")
                     : url;
             }
             set => this.SetPropertyValue(b => b.Url, value);

@@ -9,7 +9,7 @@ namespace Alloy.Models
         /// The parameterless constructor will initialize a SiteImageUrl attribute with a default thumbnail
         /// </summary>
         public SiteImageUrl()
-            : base("/gfx/page-type-thumbnail.png")
+            : base("/images/page-type-thumbnail.png")
         {
         }
 
