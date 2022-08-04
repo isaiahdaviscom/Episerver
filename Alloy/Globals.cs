@@ -57,8 +57,8 @@ namespace Alloy
         }
 
         /// <summary>
-        /// Virtual path to folder with static graphics, such as "/gfx/"
+        /// Virtual path to folder with static graphics, such as "/images/"
         /// </summary>
-        public const string StaticGraphicsFolderPath = "/gfx/";
+        public const string StaticGraphicsFolderPath = "/images/";
     }
 }
