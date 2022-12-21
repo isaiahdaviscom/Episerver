@@ -1,7 +1,11 @@
+using System;
+using System.Web.Mvc;
+using EPiServer.Core;
 using EPiServer.Core.Html.StringParsing;
+using EPiServer.Web;
+using EPiServer.Web.Mvc;
 using EPiServer.Web.Mvc.Html;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using static Alloy.Globals;
+using EPiServer;
 
 namespace Alloy.Business.Rendering
 {
@@ -10,44 +14,46 @@ namespace Alloy.Business.Rendering
     /// </summary>
     public class AlloyContentAreaRenderer : ContentAreaRenderer
     {
-        protected override string GetContentAreaItemCssClass(IHtmlHelper htmlHelper, ContentAreaItem contentAreaItem)
+        protected override string GetContentAreaItemCssClass(HtmlHelper htmlHelper, ContentAreaItem contentAreaItem)
         {
             var baseItemClass = base.GetContentAreaItemCssClass(htmlHelper, contentAreaItem);
-            var tag = GetContentAreaItemTemplateTag(htmlHelper, contentAreaItem);
 
-            return $"block {baseItemClass} {GetTypeSpecificCssClasses(contentAreaItem)} {GetCssClassForTag(tag)} {tag}";
+            var tag = GetContentAreaItemTemplateTag(htmlHelper, contentAreaItem);
+            return $"block {baseItemClass} {GetTypeSpecificCssClasses(contentAreaItem, ContentRepository)} {GetCssClassForTag(tag)} {tag}";
         }
 
         /// <summary>
         /// Gets a CSS class used for styling based on a tag name (ie a Bootstrap class name)
         /// </summary>
-        /// <param name="tagName">Any tag name available, see <see cref="ContentAreaTags"/></param>
+        /// <param name="tagName">Any tag name available, see <see cref="Global.ContentAreaTags"/></param>
         private static string GetCssClassForTag(string tagName)
         {
             if (string.IsNullOrEmpty(tagName))
             {
-                return string.Empty;
+                return "";
             }
-
-            return tagName.ToLowerInvariant() switch
+            switch (tagName.ToLower())
             {
-                ContentAreaTags.FullWidth => "col-12",
-                ContentAreaTags.WideWidth => "col-12 col-md-8",
-                ContentAreaTags.HalfWidth => "col-12 col-sm-6",
-                ContentAreaTags.NarrowWidth => "col-12 col-sm-6 col-md-4",
-                _ => string.Empty,
-            };
+                case "span12":
+                    return "full";
+                case "span8":
+                    return "wide";
+                case "span6":
+                    return "half";
+                default:
+                    return string.Empty;
+            }
         }
 
-        private static string GetTypeSpecificCssClasses(ContentAreaItem contentAreaItem)
+        private static string GetTypeSpecificCssClasses(ContentAreaItem contentAreaItem, IContentRepository contentRepository)
         {
             var content = contentAreaItem.GetContent();
-            var cssClass = content == null ? string.Empty : content.GetOriginalType().Name.ToLowerInvariant();
+            var cssClass = content == null ? String.Empty : content.GetOriginalType().Name.ToLowerInvariant();
 
-            if (content is ICustomCssInContentArea customClassContent &&
-                !string.IsNullOrWhiteSpace(customClassContent.ContentAreaCssClass))
+            var customClassContent = content as ICustomCssInContentArea;
+            if (customClassContent != null && !string.IsNullOrWhiteSpace(customClassContent.ContentAreaCssClass))
             {
-                cssClass += $" {customClassContent.ContentAreaCssClass}";
+                cssClass += string.Format(" {0}", customClassContent.ContentAreaCssClass);
             }
 
             return cssClass;

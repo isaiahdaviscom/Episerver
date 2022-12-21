@@ -1,3 +1,5 @@
+using System;
+using EPiServer.Core;
 using Alloy.Models.Pages;
 
 namespace Alloy.Models.ViewModels
@@ -10,9 +12,7 @@ namespace Alloy.Models.ViewModels
         }
 
         public T CurrentPage { get; private set; }
-
         public LayoutModel Layout { get; set; }
-
         public IContent Section { get; set; }
     }
 
@@ -24,7 +24,9 @@ namespace Alloy.Models.ViewModels
         /// <remarks>
         /// Convenience method for creating PageViewModels without having to specify the type as methods can use type inference while constructors cannot.
         /// </remarks>
-        public static PageViewModel<T> Create<T>(T page)
-            where T : SitePageData => new(page);
+        public static PageViewModel<T> Create<T>(T page) where T : SitePageData
+        {
+            return new PageViewModel<T>(page);
+        }
     }
 }

@@ -1,21 +1,20 @@
+using System.Web.Mvc;
 using Alloy.Models.Pages;
 using Alloy.Models.ViewModels;
 using EPiServer.Web;
 using EPiServer.Web.Mvc;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Alloy.Controllers
 {
     public class StartPageController : PageControllerBase<StartPage>
     {
-        public IActionResult Index(StartPage currentPage)
+        public ActionResult Index(StartPage currentPage)
         {
             var model = PageViewModel.Create(currentPage);
 
-            // Check if it is the StartPage or just a page of the StartPage type.
-            if (SiteDefinition.Current.StartPage.CompareToIgnoreWorkID(currentPage.ContentLink))
+            if (SiteDefinition.Current.StartPage.CompareToIgnoreWorkID(currentPage.ContentLink)) // Check if it is the StartPage or just a page of the StartPage type.
             {
-                // Connect the view models logotype property to the start page's to make it editable
+                //Connect the view models logotype property to the start page's to make it editable
                 var editHints = ViewData.GetEditHints<PageViewModel<StartPage>, StartPage>();
                 editHints.AddConnection(m => m.Layout.Logotype, p => p.SiteLogotype);
                 editHints.AddConnection(m => m.Layout.ProductPages, p => p.ProductPageLinks);
@@ -26,5 +25,6 @@ namespace Alloy.Controllers
 
             return View(model);
         }
+
     }
 }

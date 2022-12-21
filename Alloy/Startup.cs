@@ -1,67 +1,47 @@
-using Alloy.Extensions;
-using EPiServer.Cms.Shell;
+using System;
+using System.Web;
 using EPiServer.Cms.UI.AspNetIdentity;
-using EPiServer.Scheduler;
-using EPiServer.ServiceLocation;
-using EPiServer.Web.Routing;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+using Microsoft.Owin;
+using Microsoft.Owin.Security.Cookies;
+using Owin;
+
+[assembly: OwinStartup(typeof(Alloy.Startup))]
 
 namespace Alloy
 {
     public class Startup
     {
-        private readonly IWebHostEnvironment _webHostingEnvironment;
 
-        public Startup(IWebHostEnvironment webHostingEnvironment)
+        public void Configuration(IAppBuilder app)
         {
-            _webHostingEnvironment = webHostingEnvironment;
-        }
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            if (_webHostingEnvironment.IsDevelopment())
+            // Add CMS integration for ASP.NET Identity
+            app.AddCmsAspNetIdentity<ApplicationUser>();
+
+            // Remove to block registration of administrators
+            app.UseAdministratorRegistrationPage(() => HttpContext.Current.Request.IsLocal);
+
+            // Use cookie authentication
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
-                AppDomain.CurrentDomain.SetData("DataDirectory", Path.Combine(_webHostingEnvironment.ContentRootPath, "App_Data"));
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                LoginPath = new PathString(Global.LoginPath),
+                Provider = new CookieAuthenticationProvider
+                {
+                    // If the "/util/login.aspx" has been used for login otherwise you don't need it you can remove OnApplyRedirect.
+                    OnApplyRedirect = cookieApplyRedirectContext =>
+                    {
+                        app.CmsOnCookieApplyRedirect(cookieApplyRedirectContext, cookieApplyRedirectContext.OwinContext.Get<ApplicationSignInManager<ApplicationUser>>());
+                    },
 
-                services.Configure<SchedulerOptions>(options => options.Enabled = false);
-            }
-
-            services
-                .AddCmsAspNetIdentity<ApplicationUser>()
-                .AddCms()
-                .AddAlloy()
-                .AddAdminUserRegistration()
-                .AddEmbeddedLocalization<Startup>();
-
-            // Required by Wangkanai.Detection
-            services.AddDetection();
-
-            services.AddSession(options =>
-            {
-                options.IdleTimeout = TimeSpan.FromSeconds(10);
-                options.Cookie.HttpOnly = true;
-                options.Cookie.IsEssential = true;
-            });
-        }
-
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            // Required by Wangkanai.Detection
-            app.UseDetection();
-            app.UseSession();
-
-            app.UseStaticFiles();
-            app.UseRouting();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapContent();
+                    // Enables the application to validate the security stamp when the user logs in.
+                    // This is a security feature which is used when you change a password or add an external login to your account.
+                    OnValidateIdentity = SecurityStampValidator.OnValidateIdentity<ApplicationUserManager<ApplicationUser>, ApplicationUser>(
+                        validateInterval: TimeSpan.FromMinutes(30),
+                        regenerateIdentity: (manager, user) => manager.GenerateUserIdentityAsync(user))
+                }
             });
         }
     }

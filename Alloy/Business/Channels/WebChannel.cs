@@ -1,6 +1,5 @@
+using System.Web;
 using EPiServer.Web;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
 
 namespace Alloy.Business.Channels
 {
@@ -9,12 +8,17 @@ namespace Alloy.Business.Channels
     /// </summary>
     public class WebChannel : DisplayChannel
     {
-        public override string ChannelName => "web";
-
-        public override bool IsActive(HttpContext context)
+        public override string ChannelName
         {
-            var detection = context.RequestServices.GetRequiredService<IDetectionService>();
-            return detection.Device.Type == Device.Desktop;
+            get
+            {
+                return "web";
+            }
+        }
+
+        public override bool IsActive(HttpContextBase context)
+        {
+            return !context.Request.Browser.IsMobileDevice;
         }
     }
 }

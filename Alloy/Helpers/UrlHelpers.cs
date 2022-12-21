@@ -1,6 +1,11 @@
+using System.Web;
+using System.Web.Mvc;
+using System.Web.Routing;
+using EPiServer.Core;
+using EPiServer.Globalization;
 using EPiServer.ServiceLocation;
 using EPiServer.Web.Routing;
-using Microsoft.AspNetCore.Mvc;
+using EPiServer;
 
 namespace Alloy.Helpers
 {
@@ -11,11 +16,11 @@ namespace Alloy.Helpers
         /// so if the page is set as a shortcut to another page or an external URL that URL
         /// will be returned.
         /// </summary>
-        public static string PageLinkUrl(this IUrlHelper urlHelper, ContentReference contentLink)
+        public static IHtmlString PageLinkUrl(this UrlHelper urlHelper, ContentReference contentLink)
         {
-            if (ContentReference.IsNullOrEmpty(contentLink))
+            if(ContentReference.IsNullOrEmpty(contentLink))
             {
-                return string.Empty;
+                return MvcHtmlString.Empty;
             }
 
             var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
@@ -29,31 +34,35 @@ namespace Alloy.Helpers
         /// so if the page is set as a shortcut to another page or an external URL that URL
         /// will be returned.
         /// </summary>
-        public static string PageLinkUrl(this IUrlHelper urlHelper, PageData page)
+        public static IHtmlString PageLinkUrl(this UrlHelper urlHelper, PageData page)
         {
-            var urlResolver = urlHelper.ActionContext.HttpContext.RequestServices.GetRequiredService<UrlResolver>();
+            var urlResolver = ServiceLocator.Current.GetInstance<UrlResolver>();
             switch (page.LinkType)
             {
                 case PageShortcutType.Normal:
                 case PageShortcutType.FetchData:
-                    return urlResolver.GetUrl(page.ContentLink);
+                    return new MvcHtmlString(urlResolver.GetUrl(page.ContentLink));
 
                 case PageShortcutType.Shortcut:
-                    if (page.Property["PageShortcutLink"] is PropertyPageReference shortcutProperty &&
-                        !ContentReference.IsNullOrEmpty(shortcutProperty.ContentLink))
+                    var shortcutProperty = page.Property["PageShortcutLink"] as PropertyPageReference;
+                    if (shortcutProperty != null && !ContentReference.IsNullOrEmpty(shortcutProperty.ContentLink))
                     {
                         return urlHelper.PageLinkUrl(shortcutProperty.ContentLink);
                     }
                     break;
 
                 case PageShortcutType.External:
-                    return page.LinkURL;
-                case PageShortcutType.Inactive:
-                    break;
-                default:
-                    break;
+                    return new MvcHtmlString(page.LinkURL);
             }
-            return string.Empty;
+            return MvcHtmlString.Empty;
+        }
+
+        public static RouteValueDictionary GetPageRoute(this RequestContext requestContext, ContentReference contentLink)
+        {
+            var values = new RouteValueDictionary();
+            values[RoutingConstants.NodeKey] = contentLink;
+            values[RoutingConstants.LanguageKey] = ContentLanguage.PreferredCulture.Name;
+            return values;
         }
     }
 }

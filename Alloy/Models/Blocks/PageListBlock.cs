@@ -1,6 +1,9 @@
-using EPiServer.Filters;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
+using EPiServer.DataAnnotations;
+using EPiServer.Filters;
 
 namespace Alloy.Models.Blocks
 {
@@ -56,7 +59,7 @@ namespace Alloy.Models.Blocks
         [Display(
             GroupName = SystemTabNames.Content,
             Order = 6)]
-        public virtual PageType PageTypeFilter { get; set; }
+        public virtual PageType PageTypeFilter{get; set;}
 
         [Display(
             GroupName = SystemTabNames.Content,
@@ -67,6 +70,8 @@ namespace Alloy.Models.Blocks
             GroupName = SystemTabNames.Content,
             Order = 8)]
         public virtual bool Recursive { get; set; }
+
+        #region IInitializableContent
 
         /// <summary>
         /// Sets the default property values on the content data.
@@ -81,5 +86,7 @@ namespace Alloy.Models.Blocks
             IncludePublishDate = false;
             SortOrder = FilterSortOrder.PublishedDescending;
         }
+
+        #endregion
     }
 }

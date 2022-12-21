@@ -1,6 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
+using EPiServer.Core;
 using EPiServer.Filters;
 using EPiServer.Framework.Web;
 using EPiServer.ServiceLocation;
+using EPiServer;
 
 namespace Alloy.Business
 {
@@ -21,7 +25,7 @@ namespace Alloy.Business
             if (requirePageTemplate)
             {
                 var templateFilter = ServiceLocator.Current.GetInstance<FilterTemplate>();
-                templateFilter.TemplateTypeCategories = TemplateTypeCategories.Request;
+                templateFilter.TemplateTypeCategories = TemplateTypeCategories.Page;
                 contents = contents.Where(x => !templateFilter.ShouldFilter(x));
             }
             if (requireVisibleInMenu)
@@ -33,11 +37,11 @@ namespace Alloy.Business
 
         private static bool VisibleInMenu(IContent content)
         {
-            if (content is not PageData page)
+            var page = content as PageData;
+            if (page == null)
             {
                 return true;
             }
-
             return page.VisibleInMenu;
         }
     }

@@ -1,41 +1,50 @@
 @using EPiServer.Core
 @using EPiServer.Web
-
 @*Helper used as template for a page in the bread crumb, recursively triggering the rendering of the next page*@
-
-@{
-    HelperResult ItemTemplate(HtmlHelpers.MenuItem breadCrumbItem)
+@helper ItemTemplate(HtmlHelpers.MenuItem breadCrumbItem) {
+    if (breadCrumbItem.Selected)
     {
-        if (breadCrumbItem.Selected)
+        if (breadCrumbItem.Page.HasTemplate() && !breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
         {
-            if (breadCrumbItem.Page.HasTemplate() && !breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
-            {
-                <li class="breadcrumb-item">
-                    @Html.PageLink(breadCrumbItem.Page)
-                </li>
-            }
-            else
-            {
-                <li class="breadcrumb-item active" aria-current="page">
-                    @breadCrumbItem.Page.PageName
-                </li>
-            }
-
-            if (!breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
-            {
-                @Html.MenuList(breadCrumbItem.Page.ContentLink, ItemTemplate)
-            }
+            @Html.PageLink(breadCrumbItem.Page)
         }
-
-        return new HelperResult(w => Task.CompletedTask);
+        else
+        {
+            @breadCrumbItem.Page.PageName
+        }
+        if (!breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
+        {
+            <span class="divider">/</span>
+            @Html.MenuList(breadCrumbItem.Page.ContentLink, ItemTemplate)
+        }
     }
 }
+<section class="container-fluid sc_breadcrumb_section">
+    <div class="container">
+        <ul class="sc_breadcrumb">
+            <li>
+                <a href="/en/">Home</a>
+            </li>
+            <li>
+                <a href="/en/products--services/">Products &amp; Services</a>
+            </li>
+            <li>
+                <a href="/en/products--services/products/">Products</a>
+            </li>
+            <li>
+                <span class="brand-dark-gray">VacuFuse<sup>®</sup> II Self-Resetting Interrupter</span>
+            </li>
+        </ul>
+        <ul class="mobile-sc_breadcrumb"><li class="mobile-chefron"><a href="/en/products--services/products/" class="small"> <span class="fas fa-chevron-left"></span>Products</a></li></ul>
+    </div>
+</section>
 
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb d-none d-lg-flex">
-        <li class="breadcrumb-item">
+<div class="row hideMyTracks">
+    <div class="span12">
+        <ul class="alloyBreadcrumb">
             @Html.ContentLink(SiteDefinition.Current.StartPage)
-        </li>
-        @Html.MenuList(SiteDefinition.Current.StartPage, ItemTemplate, requireVisibleInMenu: false, requirePageTemplate: false)
-    </ol>
-</nav>
+            <span class="divider">/</span>
+            @Html.MenuList(SiteDefinition.Current.StartPage, ItemTemplate, requireVisibleInMenu: false, requirePageTemplate: false)
+        </ul>
+    </div>
+</div>

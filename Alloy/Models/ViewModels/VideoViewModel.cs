@@ -1,3 +1,4 @@
+
 namespace Alloy.Models.ViewModels
 {
     /// <summary>

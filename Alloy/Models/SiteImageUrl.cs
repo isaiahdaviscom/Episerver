@@ -1,3 +1,5 @@
+using EPiServer.DataAnnotations;
+
 namespace Alloy.Models
 {
     /// <summary>
@@ -8,14 +10,14 @@ namespace Alloy.Models
         /// <summary>
         /// The parameterless constructor will initialize a SiteImageUrl attribute with a default thumbnail
         /// </summary>
-        public SiteImageUrl()
-            : base("/images/page-type-thumbnail.png")
+        public SiteImageUrl() : base("~/Static/gfx/page-type-thumbnail.png")
         {
+
         }
 
-        public SiteImageUrl(string path)
-            : base(path)
+        public SiteImageUrl(string path) : base(path)
         {
+
         }
     }
 }

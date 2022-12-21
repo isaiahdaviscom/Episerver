@@ -1,7 +1,10 @@
-using Alloy.Business.Rendering;
-using EPiServer.SpecializedProperties;
-using EPiServer.Web;
 using System.ComponentModel.DataAnnotations;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
+using EPiServer.DataAnnotations;
+using Alloy.Business.Rendering;
+using Alloy.Models.Properties;
+using EPiServer.Web;
 
 namespace Alloy.Models.Pages
 {
@@ -11,7 +14,7 @@ namespace Alloy.Models.Pages
     public abstract class SitePageData : PageData, ICustomCssInContentArea
     {
         [Display(
-            GroupName = Globals.GroupNames.MetaData,
+            GroupName = Global.GroupNames.MetaData,
             Order = 100)]
         [CultureSpecific]
         public virtual string MetaTitle
@@ -22,28 +25,28 @@ namespace Alloy.Models.Pages
 
                 // Use explicitly set meta title, otherwise fall back to page name
                 return !string.IsNullOrWhiteSpace(metaTitle)
-                       ? metaTitle
-                       : PageName;
+                        ? metaTitle
+                        : PageName;
             }
-            set => this.SetPropertyValue(p => p.MetaTitle, value);
+            set { this.SetPropertyValue(p => p.MetaTitle, value); }
         }
 
         [Display(
-            GroupName = Globals.GroupNames.MetaData,
+            GroupName = Global.GroupNames.MetaData,
             Order = 200)]
         [CultureSpecific]
         [BackingType(typeof(PropertyStringList))]
-        public virtual IList<string> MetaKeywords { get; set; }
+        public virtual string[] MetaKeywords { get; set; }
 
         [Display(
-            GroupName = Globals.GroupNames.MetaData,
+            GroupName = Global.GroupNames.MetaData,
             Order = 300)]
         [CultureSpecific]
         [UIHint(UIHint.Textarea)]
         public virtual string MetaDescription { get; set; }
 
         [Display(
-            GroupName = Globals.GroupNames.MetaData,
+            GroupName = Global.GroupNames.MetaData,
             Order = 400)]
         [CultureSpecific]
         public virtual bool DisableIndexing { get; set; }
@@ -67,10 +70,10 @@ namespace Alloy.Models.Pages
 
                 // Use explicitly set teaser text, otherwise fall back to description
                 return !string.IsNullOrWhiteSpace(teaserText)
-                    ? teaserText
-                    : MetaDescription;
+                        ? teaserText
+                        : MetaDescription;
             }
-            set => this.SetPropertyValue(p => p.TeaserText, value);
+            set { this.SetPropertyValue(p => p.TeaserText, value); }
         }
 
         [Display(
@@ -85,6 +88,9 @@ namespace Alloy.Models.Pages
         [CultureSpecific]
         public virtual bool HideSiteFooter { get; set; }
 
-        public string ContentAreaCssClass => "teaserblock";
+        public string ContentAreaCssClass
+        {
+            get { return "teaserblock"; } //Page partials should be style like teasers
+        }
     }
 }

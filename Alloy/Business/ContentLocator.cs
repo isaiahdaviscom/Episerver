@@ -1,13 +1,16 @@
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using Alloy.Models.Pages;
+using EPiServer;
+using EPiServer.Core;
 using EPiServer.Filters;
-using EPiServer.ServiceLocation;
 using EPiServer.Shell.Configuration;
 using EPiServer.Web;
-using System.Globalization;
 
 namespace Alloy.Business
 {
-    [ServiceConfiguration(Lifecycle = ServiceInstanceScope.Singleton)]
     public class ContentLocator
     {
         private readonly IContentLoader _contentLoader;
@@ -27,7 +30,8 @@ namespace Alloy.Business
             var children = _contentLoader.GetChildren<PageData>(rootLink);
             foreach (var child in children)
             {
-                if (child is T childOfRequestedTyped)
+                var childOfRequestedTyped = child as T;
+                if (childOfRequestedTyped != null)
                 {
                     yield return childOfRequestedTyped;
                 }
@@ -49,12 +53,12 @@ namespace Alloy.Business
         {
             if (ContentReference.IsNullOrEmpty(pageLink))
             {
-                throw new ArgumentNullException(nameof(pageLink), "No page link specified, unable to find pages");
+                throw new ArgumentNullException("pageLink", "No page link specified, unable to find pages");
             }
 
             var pages = recursive
-                ? FindPagesByPageTypeRecursively(pageLink, pageTypeId)
-                : _contentLoader.GetChildren<PageData>(pageLink);
+                        ? FindPagesByPageTypeRecursively(pageLink, pageTypeId)
+                        : _contentLoader.GetChildren<PageData>(pageLink);
 
             return pages;
         }
@@ -63,15 +67,15 @@ namespace Alloy.Business
         private IEnumerable<PageData> FindPagesByPageTypeRecursively(PageReference pageLink, int pageTypeId)
         {
             var criteria = new PropertyCriteriaCollection
-        {
-            new PropertyCriteria
-            {
-                Name = "PageTypeID",
-                Type = PropertyDataType.PageType,
-                Condition = CompareCondition.Equal,
-                Value = pageTypeId.ToString(CultureInfo.InvariantCulture)
-            }
-        };
+                                {
+                                    new PropertyCriteria
+                                    {
+                                        Name = "PageTypeID",
+                                        Type = PropertyDataType.PageType,
+                                        Condition = CompareCondition.Equal,
+                                        Value = pageTypeId.ToString(CultureInfo.InvariantCulture)
+                                    }
+                                };
 
             // Include content providers serving content beneath the page link specified for the search
             if (_providerManager.ProviderMap.CustomProvidersExist)

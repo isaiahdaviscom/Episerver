@@ -1,7 +1,9 @@
+using System;
+using System.Web.Mvc;
+using EPiServer;
+using EPiServer.Framework.DataAnnotations;
 using Alloy.Models.Pages;
 using Alloy.Models.ViewModels;
-using EPiServer.Framework.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Alloy.Controllers
 {
@@ -10,7 +12,7 @@ namespace Alloy.Controllers
     /// </summary>
     /// <remarks>
     /// Note that as the view file name is hard coded it won't work with DisplayModes (ie Index.mobile.cshtml).
-    /// For page types requiring such views add specific controllers for them. Alternatively the Index action
+    /// For page types requiring such views add specific controllers for them. Alterntively the Index action
     /// could be modified to set ControllerContext.RouteData.Values["controller"] to type name of the currentPage
     /// argument. That may however have side effects.
     /// </remarks>
@@ -20,7 +22,7 @@ namespace Alloy.Controllers
         public ViewResult Index(SitePageData currentPage)
         {
             var model = CreateModel(currentPage);
-            return View($"~/Views/{currentPage.GetOriginalType().Name}/Index.cshtml", model);
+            return View(string.Format("~/Views/{0}/Index.cshtml", currentPage.GetOriginalType().Name), model);
         }
 
         /// <summary>

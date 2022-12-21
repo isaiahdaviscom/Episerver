@@ -1,5 +1,10 @@
-using Alloy.Models.Blocks;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Alloy.Models.Blocks;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
+using EPiServer.DataAnnotations;
+using Alloy.Models.Properties;
 
 namespace Alloy.Models.Pages
 {
@@ -8,8 +13,8 @@ namespace Alloy.Models.Pages
     /// </summary>
     [SiteContentType(
         GUID = "17583DCD-3C11-49DD-A66D-0DEF0DD601FC",
-        GroupName = Globals.GroupNames.Products)]
-    [SiteImageUrl(Globals.StaticGraphicsFolderPath + "page-type-thumbnail-product.png")]
+        GroupName = Global.GroupNames.Products)]
+    [SiteImageUrl(Global.StaticGraphicsFolderPath + "page-type-thumbnail-product.png")]
     [AvailableContentTypes(
         Availability = Availability.Specific,
         IncludeOn = new[] { typeof(StartPage) })]
@@ -17,7 +22,7 @@ namespace Alloy.Models.Pages
     {
         [Required]
         [Display(Order = 305)]
-        [UIHint(Globals.SiteUIHints.StringsCollection)]
+        [UIHint(Global.SiteUIHints.StringsCollection)]
         [CultureSpecific]
         public virtual IList<string> UniqueSellingPoints { get; set; }
 
@@ -25,7 +30,7 @@ namespace Alloy.Models.Pages
             GroupName = SystemTabNames.Content,
             Order = 330)]
         [CultureSpecific]
-        [AllowedTypes(new[] { typeof(IContentData) }, new[] { typeof(JumbotronBlock) })]
+        [AllowedTypes(new[] { typeof(IContentData) },new[] { typeof(JumbotronBlock) })]
         public virtual ContentArea RelatedContentArea { get; set; }
     }
 }

@@ -1,6 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+using EPiServer.Core;
+using EPiServer.DataAnnotations;
 using EPiServer.Shell.ObjectEditing;
 using EPiServer.Web;
-using System.ComponentModel.DataAnnotations;
+using EPiServer;
 
 namespace Alloy.Models.Blocks
 {
@@ -26,10 +29,13 @@ namespace Alloy.Models.Blocks
                 var url = this.GetPropertyValue(b => b.Url);
 
                 return url == null || url.IsEmpty()
-                    ? new Url("/images/logotype.png")
-                    : url;
+                            ? new Url("/Static/gfx/logotype.png")
+                            : url;
             }
-            set => this.SetPropertyValue(b => b.Url, value);
+            set
+            {
+                this.SetPropertyValue(b => b.Url, value);
+            }
         }
 
         [CultureSpecific]

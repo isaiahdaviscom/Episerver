@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
+using EPiServer;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
 using EPiServer.ServiceLocation;
 
 namespace Alloy.Helpers
@@ -18,14 +23,13 @@ namespace Alloy.Helpers
         {
             if (content.Category == null)
             {
-                return Array.Empty<string>();
+                return new string[0];
             }
 
-            // Although with some overhead, a HashSet allows us to ensure we never add a CSS class more than once
-            var cssClasses = new HashSet<string>();
+            var cssClasses = new HashSet<string>(); // Although with some overhead, a HashSet allows us to ensure we never add a CSS class more than once
             var categoryRepository = ServiceLocator.Current.GetInstance<CategoryRepository>();
 
-            foreach (var categoryName in content.Category.Select(category => categoryRepository.Get(category).Name.ToLowerInvariant()))
+            foreach (var categoryName in content.Category.Select(category => categoryRepository.Get(category).Name.ToLower()))
             {
                 switch (categoryName)
                 {
@@ -37,8 +41,6 @@ namespace Alloy.Helpers
                         break;
                     case "plan":
                         cssClasses.Add("theme3");
-                        break;
-                    default:
                         break;
                 }
             }

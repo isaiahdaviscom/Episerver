@@ -1,5 +1,3 @@
-using EPiServer.Framework.Localization;
-
 namespace Alloy.Business.Channels
 {
     /// <summary>
@@ -7,8 +5,7 @@ namespace Alloy.Business.Channels
     /// </summary>
     public class StandardResolution : DisplayResolutionBase
     {
-        public StandardResolution(LocalizationService localizationService)
-            : base(localizationService, "/resolutions/standard", 1366, 768)
+        public StandardResolution() : base("/resolutions/standard", 1366, 768)
         {
         }
     }
@@ -18,8 +15,7 @@ namespace Alloy.Business.Channels
     /// </summary>
     public class IpadHorizontalResolution : DisplayResolutionBase
     {
-        public IpadHorizontalResolution(LocalizationService localizationService)
-            : base(localizationService, "/resolutions/ipadhorizontal", 1024, 768)
+        public IpadHorizontalResolution() : base("/resolutions/ipadhorizontal", 1024, 768)
         {
         }
     }
@@ -29,8 +25,7 @@ namespace Alloy.Business.Channels
     /// </summary>
     public class IphoneVerticalResolution : DisplayResolutionBase
     {
-        public IphoneVerticalResolution(LocalizationService localizationService)
-            : base(localizationService, "/resolutions/iphonevertical", 320, 568)
+        public IphoneVerticalResolution() : base("/resolutions/iphonevertical", 320, 568)
         {
         }
     }
@@ -40,8 +35,7 @@ namespace Alloy.Business.Channels
     /// </summary>
     public class AndroidVerticalResolution : DisplayResolutionBase
     {
-        public AndroidVerticalResolution(LocalizationService localizationService)
-            : base(localizationService, "/resolutions/androidvertical", 480, 800)
+        public AndroidVerticalResolution() : base("/resolutions/androidvertical", 480, 800)
         {
         }
     }

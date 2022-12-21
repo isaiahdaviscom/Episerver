@@ -1,24 +1,35 @@
+using System.Web;
+using System.Web.WebPages;
 using EPiServer.Web;
-using Wangkanai.Detection.Models;
-using Wangkanai.Detection.Services;
 
 namespace Alloy.Business.Channels
 {
     //<summary>
-    // Defines the 'Mobile' content channel
+    //Defines the 'Mobile' content channel
     //</summary>
     public class MobileChannel : DisplayChannel
     {
         public const string Name = "mobile";
 
-        public override string ChannelName => Name;
-
-        public override string ResolutionId => typeof(IphoneVerticalResolution).FullName;
-
-        public override bool IsActive(HttpContext context)
+        public override string ChannelName
         {
-            var detection = context.RequestServices.GetRequiredService<IDetectionService>();
-            return detection.Device.Type == Device.Mobile;
+            get
+            {
+                return Name;
+            }
+        }
+
+        public override string ResolutionId
+        {
+            get
+            {
+                return typeof(IphoneVerticalResolution).FullName;
+            }
+        }
+
+        public override bool IsActive(HttpContextBase context)
+        {
+            return context.GetOverriddenBrowser().IsMobileDevice;
         }
     }
 }

@@ -1,7 +1,9 @@
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
+using EPiServer.ServiceLocation;
 using Alloy.Controllers;
 using Alloy.Models.Blocks;
 using Alloy.Models.Pages;
-using EPiServer.ServiceLocation;
 using EPiServer.Web;
 using EPiServer.Web.Mvc;
 
@@ -15,10 +17,8 @@ namespace Alloy.Business.Rendering
 
         public static void OnTemplateResolved(object sender, TemplateResolverEventArgs args)
         {
-            // Disable DefaultPageController for page types that shouldn't have any renderer as pages
-            if (args.ItemToRender is IContainerPage &&
-                args.SelectedTemplate != null &&
-                args.SelectedTemplate.TemplateType == typeof(DefaultPageController))
+            //Disable DefaultPageController for page types that shouldn't have any renderer as pages
+            if (args.ItemToRender is IContainerPage && args.SelectedTemplate != null && args.SelectedTemplate.TemplateType == typeof(DefaultPageController))
             {
                 args.SelectedTemplate = null;
             }
@@ -37,16 +37,24 @@ namespace Alloy.Business.Rendering
         /// </remarks>
         public void Register(TemplateModelCollection viewTemplateModelRegistrator)
         {
+            viewTemplateModelRegistrator.Add(typeof(JumbotronBlock), new TemplateModel
+            {
+                Tags = new[] { Global.ContentAreaTags.FullWidth },
+                AvailableWithoutTag = false,
+                Path = BlockPath("JumbotronBlockWide.cshtml")
+            });
+
             viewTemplateModelRegistrator.Add(typeof(TeaserBlock), new TemplateModel
             {
                 Name = "TeaserBlockWide",
-                Tags = new[] { Globals.ContentAreaTags.WideWidth, Globals.ContentAreaTags.FullWidth },
+                Tags = new[] { Global.ContentAreaTags.TwoThirdsWidth, Global.ContentAreaTags.FullWidth },
                 AvailableWithoutTag = false,
+                Path = BlockPath("TeaserBlockWide.cshtml")
             });
 
             viewTemplateModelRegistrator.Add(typeof(SitePageData), new TemplateModel
             {
-                Name = "Page",
+                Name = "PagePartial",
                 Inherit = true,
                 AvailableWithoutTag = true,
                 Path = PagePartialPath("Page.cshtml")
@@ -54,25 +62,39 @@ namespace Alloy.Business.Rendering
 
             viewTemplateModelRegistrator.Add(typeof(SitePageData), new TemplateModel
             {
-                Name = "PageWide",
+                Name = "PagePartialWide",
                 Inherit = true,
-                Tags = new[] { Globals.ContentAreaTags.WideWidth, Globals.ContentAreaTags.FullWidth },
+                Tags = new[] { Global.ContentAreaTags.TwoThirdsWidth, Global.ContentAreaTags.FullWidth },
                 AvailableWithoutTag = false,
                 Path = PagePartialPath("PageWide.cshtml")
             });
 
+            viewTemplateModelRegistrator.Add(typeof(ContactPage), new TemplateModel
+            {
+                Name = "ContactPagePartialWide",
+                Tags = new[] { Global.ContentAreaTags.TwoThirdsWidth, Global.ContentAreaTags.FullWidth },
+                AvailableWithoutTag = false,
+                Path = PagePartialPath("ContactPageWide.cshtml")
+            });
+
             viewTemplateModelRegistrator.Add(typeof(IContentData), new TemplateModel
             {
-                Name = "NoRenderer",
+                Name = "NoRendererMessage",
                 Inherit = true,
-                Tags = new[] { Globals.ContentAreaTags.NoRenderer },
+                Tags = new[] { Global.ContentAreaTags.NoRenderer },
                 AvailableWithoutTag = false,
                 Path = BlockPath("NoRenderer.cshtml")
             });
         }
 
-        private static string BlockPath(string fileName) => $"{BlockFolder}{fileName}";
+        private static string BlockPath(string fileName)
+        {
+            return string.Format("{0}{1}", BlockFolder, fileName);
+        }
 
-        private static string PagePartialPath(string fileName) => $"{PagePartialsFolder}{fileName}";
+        private static string PagePartialPath(string fileName)
+        {
+            return string.Format("{0}{1}", PagePartialsFolder, fileName);
+        }
     }
 }

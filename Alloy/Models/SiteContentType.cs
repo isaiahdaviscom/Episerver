@@ -1,3 +1,5 @@
+using EPiServer.DataAnnotations;
+
 namespace Alloy.Models
 {
     /// <summary>
@@ -7,7 +9,7 @@ namespace Alloy.Models
     {
         public SiteContentType()
         {
-            GroupName = Globals.GroupNames.Default;
+            GroupName = Global.GroupNames.Default;
         }
     }
 }

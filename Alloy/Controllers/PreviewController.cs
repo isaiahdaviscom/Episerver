@@ -1,19 +1,22 @@
+using System.Linq;
+using System.Web.Mvc;
+using EPiServer.Core;
+using EPiServer.Framework.DataAnnotations;
+using EPiServer.Framework.Web;
 using Alloy.Business;
 using Alloy.Models.Pages;
 using Alloy.Models.ViewModels;
-using EPiServer.Framework.DataAnnotations;
-using EPiServer.Framework.Web;
-using EPiServer.Framework.Web.Mvc;
 using EPiServer.Web;
 using EPiServer.Web.Mvc;
-using Microsoft.AspNetCore.Mvc;
+using EPiServer;
+using EPiServer.Framework.Web.Mvc;
 
 namespace Alloy.Controllers
 {
-    // Note: as the content area rendering on Alloy is customized we create ContentArea instances
-    // which we render in the preview view in order to provide editors with a preview which is as
-    // realistic as possible. In other contexts we could simply have passed the block to the
-    // view and rendered it using Html.RenderContentData
+    /* Note: as the content area rendering on Alloy is customized we create ContentArea instances
+    * which we render in the preview view in order to provide editors with a preview which is as
+    * realistic as possible. In other contexts we could simply have passed the block to the
+    * view and rendered it using Html.RenderContentData */
     [TemplateDescriptor(
         Inherited = true,
         TemplateTypeCategory = TemplateTypeCategories.MvcController, //Required as controllers for blocks are registered as MvcPartialController by default
@@ -34,7 +37,7 @@ namespace Alloy.Controllers
             _displayOptions = displayOptions;
         }
 
-        public IActionResult Index(IContent currentContent)
+        public ActionResult Index(IContent currentContent)
         {
             //As the layout requires a page for title etc we "borrow" the start page
             var startPage = _contentLoader.Get<StartPage>(SiteDefinition.Current.StartPage);
@@ -42,7 +45,7 @@ namespace Alloy.Controllers
             var model = new PreviewModel(startPage, currentContent);
 
             var supportedDisplayOptions = _displayOptions
-                .Select(x => new { x.Tag, x.Name, Supported = SupportsTag(currentContent, x.Tag) })
+                .Select(x => new { Tag = x.Tag, Name = x.Name, Supported = SupportsTag(currentContent, x.Tag) })
                 .ToList();
 
             if (supportedDisplayOptions.Any(x => x.Supported))
@@ -50,20 +53,17 @@ namespace Alloy.Controllers
                 foreach (var displayOption in supportedDisplayOptions)
                 {
                     var contentArea = new ContentArea();
-
                     contentArea.Items.Add(new ContentAreaItem
                     {
                         ContentLink = currentContent.ContentLink
                     });
-
                     var areaModel = new PreviewModel.PreviewArea
-                    {
-                        Supported = displayOption.Supported,
-                        AreaTag = displayOption.Tag,
-                        AreaName = displayOption.Name,
-                        ContentArea = contentArea
-                    };
-
+                        {
+                            Supported = displayOption.Supported,
+                            AreaTag = displayOption.Tag,
+                            AreaName = displayOption.Name,
+                            ContentArea = contentArea
+                        };
                     model.Areas.Add(areaModel);
                 }
             }
@@ -73,12 +73,11 @@ namespace Alloy.Controllers
 
         private bool SupportsTag(IContent content, string tag)
         {
-            var templateModel = _templateResolver.Resolve(
-                HttpContext,
-                content.GetOriginalType(),
-                content,
-                TemplateTypeCategories.MvcPartial,
-                tag);
+            var templateModel = _templateResolver.Resolve(HttpContext,
+                                    content.GetOriginalType(),
+                                    content,
+                                    TemplateTypeCategories.MvcPartial,
+                                    tag);
 
             return templateModel != null;
         }

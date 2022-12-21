@@ -1,10 +1,15 @@
+using System;
+using EPiServer;
+using EPiServer.Core;
+
 namespace Alloy.Models.ViewModels
 {
     public class ContentRenderingErrorModel
     {
         public ContentRenderingErrorModel(IContentData contentData, Exception exception)
         {
-            if (contentData is IContent content)
+            var content = contentData as IContent;
+            if(content != null)
             {
                 ContentName = content.Name;
             }
@@ -19,9 +24,7 @@ namespace Alloy.Models.ViewModels
         }
 
         public string ContentName { get; set; }
-
         public string ContentTypeName { get; set; }
-
         public Exception Exception { get; set; }
     }
 }

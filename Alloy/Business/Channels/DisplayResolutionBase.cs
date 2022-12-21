@@ -1,4 +1,5 @@
 using EPiServer.Framework.Localization;
+using EPiServer.ServiceLocation;
 using EPiServer.Web;
 
 namespace Alloy.Business.Channels
@@ -8,10 +9,10 @@ namespace Alloy.Business.Channels
     /// </summary>
     public abstract class DisplayResolutionBase : IDisplayResolution
     {
-        private readonly LocalizationService _localizationService;
-        protected DisplayResolutionBase(LocalizationService localizationService, string name, int width, int height)
+        private Injected<LocalizationService> LocalizationService { get; set; }
+
+        protected DisplayResolutionBase(string name, int width, int height)
         {
-            _localizationService = localizationService;
             Id = GetType().FullName;
             Name = Translate(name);
             Width = width;
@@ -40,7 +41,9 @@ namespace Alloy.Business.Channels
 
         private string Translate(string resurceKey)
         {
-            if (!_localizationService.TryGetString(resurceKey, out var value))
+            string value;
+
+            if(!LocalizationService.Service.TryGetString(resurceKey, out value))
             {
                 value = resurceKey;
             }

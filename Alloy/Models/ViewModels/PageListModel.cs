@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using EPiServer.Core;
 using Alloy.Models.Blocks;
 
 namespace Alloy.Models.ViewModels
@@ -11,11 +13,8 @@ namespace Alloy.Models.ViewModels
             ShowPublishDate = block.IncludePublishDate;
         }
         public string Heading { get; set; }
-
         public IEnumerable<PageData> Pages { get; set; }
-
         public bool ShowIntroduction { get; set; }
-
         public bool ShowPublishDate { get; set; }
     }
 }

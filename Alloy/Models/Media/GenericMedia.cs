@@ -1,3 +1,7 @@
+using EPiServer.Core;
+using EPiServer.DataAnnotations;
+using System;
+
 namespace Alloy.Models.Media
 {
     [ContentType(GUID = "EE3BD195-7CB0-4756-AB5F-E5E223CD9820")]
@@ -6,6 +10,6 @@ namespace Alloy.Models.Media
         /// <summary>
         /// Gets or sets the description.
         /// </summary>
-        public virtual string Description { get; set; }
+        public virtual String Description { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using EPiServer.Core;
 using Alloy.Models.Pages;
 
 namespace Alloy.Models.ViewModels
@@ -12,9 +13,7 @@ namespace Alloy.Models.ViewModels
     public interface IPageViewModel<out T> where T : SitePageData
     {
         T CurrentPage { get; }
-
         LayoutModel Layout { get; set; }
-
         IContent Section { get; set; }
     }
 }

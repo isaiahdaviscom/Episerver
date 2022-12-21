@@ -1,7 +1,8 @@
+using System.Web;
+using System.ComponentModel.DataAnnotations;
 using Alloy.Models.Pages;
 using EPiServer.Web;
-using Microsoft.AspNetCore.Html;
-using System.ComponentModel.DataAnnotations;
+using EPiServer.Core;
 
 namespace Alloy.Models.ViewModels
 {
@@ -9,15 +10,10 @@ namespace Alloy.Models.ViewModels
     {
         [UIHint(UIHint.Image)]
         public ContentReference Image { get; set; }
-
         public string Heading { get; set; }
-
         public string LinkText { get; set; }
-
-        public IHtmlContent LinkUrl { get; set; }
-
+        public IHtmlString LinkUrl { get; set; }
         public bool ShowLink { get; set; }
-
         public ContactPage ContactPage { get; set; }
     }
 }

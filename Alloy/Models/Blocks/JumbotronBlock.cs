@@ -1,5 +1,9 @@
-using EPiServer.Web;
 using System.ComponentModel.DataAnnotations;
+using EPiServer.DataAbstraction;
+using EPiServer.DataAnnotations;
+using EPiServer.Web;
+using EPiServer.Core;
+using EPiServer;
 
 namespace Alloy.Models.Blocks
 {
@@ -7,7 +11,7 @@ namespace Alloy.Models.Blocks
     /// Used for a primary message on a page, commonly used on start pages and landing pages
     /// </summary>
     [SiteContentType(
-        GroupName = Globals.GroupNames.Specialized,
+        GroupName = Global.GroupNames.Specialized,
         GUID = "9FD1C860-7183-4122-8CD4-FF4C55E096F9")]
     [SiteImageUrl]
     public class JumbotronBlock : SiteBlockData
@@ -38,7 +42,7 @@ namespace Alloy.Models.Blocks
                 // Return image description with fall back to the heading if no description has been specified
                 return string.IsNullOrWhiteSpace(propertyValue) ? Heading : propertyValue;
             }
-            set => this["ImageDescription"] = value;
+            set { this["ImageDescription"] = value; }
         }
 
         [Display(
@@ -64,7 +68,7 @@ namespace Alloy.Models.Blocks
         [Required]
         public virtual string ButtonText { get; set; }
 
-        // The link must be required as an anchor tag requires an href in order to be valid and focusable
+        //The link must be required as an anchor tag requires an href in order to be valid and focusable
         [Display(
             GroupName = SystemTabNames.Content,
             Order = 4

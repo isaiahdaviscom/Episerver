@@ -1,12 +1,17 @@
-using Alloy.Business;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Web;
+using System.Web.Mvc;
+using System.Web.WebPages;
+using EPiServer.Core;
 using EPiServer.ServiceLocation;
+using Alloy.Business;
 using EPiServer.Web.Mvc.Html;
 using EPiServer.Web.Routing;
-using Microsoft.AspNetCore.Html;
-using Microsoft.AspNetCore.Mvc.Razor;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using System.Text;
-using System.Text.Encodings.Web;
+using EPiServer;
 
 namespace Alloy.Helpers
 {
@@ -24,20 +29,20 @@ namespace Alloy.Helpers
         /// <remarks>
         /// Filter by access rights and publication status.
         /// </remarks>
-        public static IHtmlContent MenuList(
-            this IHtmlHelper helper,
+        public static IHtmlString MenuList(
+            this HtmlHelper helper,
             ContentReference rootLink,
             Func<MenuItem, HelperResult> itemTemplate = null,
             bool includeRoot = false,
             bool requireVisibleInMenu = true,
             bool requirePageTemplate = true)
         {
-            itemTemplate ??= GetDefaultItemTemplate(helper);
-            var currentContentLink = helper.ViewContext.HttpContext.GetContentLink();
+            itemTemplate = itemTemplate ?? GetDefaultItemTemplate(helper);
+            var currentContentLink = helper.ViewContext.RequestContext.GetContentLink();
             var contentLoader = ServiceLocator.Current.GetInstance<IContentLoader>();
 
-            IEnumerable<PageData> filter(IEnumerable<PageData> pages)
-                => pages.FilterForDisplay(requirePageTemplate, requireVisibleInMenu);
+            Func<IEnumerable<PageData>, IEnumerable<PageData>> filter =
+                pages => pages.FilterForDisplay(requirePageTemplate, requireVisibleInMenu);
 
             var pagePath = contentLoader.GetAncestors(currentContentLink)
                 .Reverse()
@@ -50,7 +55,7 @@ namespace Alloy.Helpers
                 .Select(x => CreateMenuItem(x, currentContentLink, pagePath, contentLoader, filter))
                 .ToList();
 
-            if (includeRoot)
+            if(includeRoot)
             {
                 menuItems.Insert(0, CreateMenuItem(contentLoader.Get<PageData>(rootLink), currentContentLink, pagePath, contentLoader, filter));
             }
@@ -59,32 +64,27 @@ namespace Alloy.Helpers
             var writer = new StringWriter(buffer);
             foreach (var menuItem in menuItems)
             {
-                itemTemplate(menuItem).WriteTo(writer, HtmlEncoder.Default);
+                itemTemplate(menuItem).WriteTo(writer);
             }
 
-            return new HtmlString(buffer.ToString());
+            return new MvcHtmlString(buffer.ToString());
         }
 
         private static MenuItem CreateMenuItem(PageData page, ContentReference currentContentLink, List<ContentReference> pagePath, IContentLoader contentLoader, Func<IEnumerable<PageData>, IEnumerable<PageData>> filter)
         {
             var menuItem = new MenuItem(page)
-            {
-                Selected = page.ContentLink.CompareToIgnoreWorkID(currentContentLink) ||
-                           pagePath.Contains(page.ContentLink),
-
-                HasChildren = new Lazy<bool>(() => filter(contentLoader.GetChildren<PageData>(page.ContentLink)).Any())
-            };
-
+                {
+                    Selected = page.ContentLink.CompareToIgnoreWorkID(currentContentLink) ||
+                                pagePath.Contains(page.ContentLink),
+                    HasChildren =
+                        new Lazy<bool>(() => filter(contentLoader.GetChildren<PageData>(page.ContentLink)).Any())
+                };
             return menuItem;
         }
 
-        private static Func<MenuItem, HelperResult> GetDefaultItemTemplate(IHtmlHelper helper)
+        private static Func<MenuItem, HelperResult> GetDefaultItemTemplate(HtmlHelper helper)
         {
-            return x => new HelperResult(writer =>
-            {
-                helper.PageLink(x.Page).WriteTo(writer, HtmlEncoder.Default);
-                return Task.CompletedTask;
-            });
+            return x => new HelperResult(writer => writer.Write(helper.PageLink(x.Page)));
         }
 
         public class MenuItem
@@ -93,11 +93,8 @@ namespace Alloy.Helpers
             {
                 Page = page;
             }
-
             public PageData Page { get; set; }
-
             public bool Selected { get; set; }
-
             public Lazy<bool> HasChildren { get; set; }
         }
 
@@ -106,16 +103,16 @@ namespace Alloy.Helpers
         /// Returns a ConditionalLink object which when disposed will write a closing <![CDATA[ </a> ]]> tag
         /// to the response if the shouldWriteLink argument is true.
         /// </summary>
-        public static ConditionalLink BeginConditionalLink(this IHtmlHelper helper, bool shouldWriteLink, string url, string title = null, string cssClass = null)
+        public static ConditionalLink BeginConditionalLink(this HtmlHelper helper, bool shouldWriteLink, IHtmlString url, string title = null, string cssClass = null)
         {
-            if (shouldWriteLink)
+            if(shouldWriteLink)
             {
                 var linkTag = new TagBuilder("a");
-                linkTag.Attributes.Add("href", url);
+                linkTag.Attributes.Add("href", url.ToHtmlString());
 
-                if (!string.IsNullOrWhiteSpace(title))
+                if(!string.IsNullOrWhiteSpace(title))
                 {
-                    linkTag.Attributes.Add("title", title);
+                    linkTag.Attributes.Add("title", helper.Encode(title));
                 }
 
                 if (!string.IsNullOrWhiteSpace(cssClass))
@@ -123,7 +120,7 @@ namespace Alloy.Helpers
                     linkTag.Attributes.Add("class", cssClass);
                 }
 
-                helper.ViewContext.Writer.Write(linkTag.RenderStartTag());
+                helper.ViewContext.Writer.Write(linkTag.ToString(TagRenderMode.StartTag));
             }
             return new ConditionalLink(helper.ViewContext, shouldWriteLink);
         }
@@ -137,11 +134,11 @@ namespace Alloy.Helpers
         /// Overload which only executes the delegate for retrieving the URL if the link should be written.
         /// This may be used to prevent null reference exceptions by adding null checkes to the shouldWriteLink condition.
         /// </remarks>
-        public static ConditionalLink BeginConditionalLink(this IHtmlHelper helper, bool shouldWriteLink, Func<string> urlGetter, string title = null, string cssClass = null)
+        public static ConditionalLink BeginConditionalLink(this HtmlHelper helper, bool shouldWriteLink, Func<IHtmlString> urlGetter, string title = null, string cssClass = null)
         {
-            var url = string.Empty;
+            IHtmlString url = MvcHtmlString.Empty;
 
-            if (shouldWriteLink)
+            if(shouldWriteLink)
             {
                 url = urlGetter();
             }
@@ -165,6 +162,7 @@ namespace Alloy.Helpers
             {
                 Dispose(true);
                 GC.SuppressFinalize(this);
+
             }
 
             protected virtual void Dispose(bool disposing)

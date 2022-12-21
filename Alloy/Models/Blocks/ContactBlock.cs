@@ -1,5 +1,9 @@
-using EPiServer.Web;
 using System.ComponentModel.DataAnnotations;
+using EPiServer.Core;
+using EPiServer.DataAbstraction;
+using EPiServer.DataAnnotations;
+using EPiServer.Web;
+using EPiServer;
 
 namespace Alloy.Models.Blocks
 {
@@ -30,7 +34,7 @@ namespace Alloy.Models.Blocks
         [Display(
             GroupName = SystemTabNames.Content,
             Order = 3)]
-        [UIHint(Globals.SiteUIHints.Contact)]
+        [UIHint(Global.SiteUIHints.Contact)]
         public virtual PageReference ContactPageLink { get; set; }
 
         [Display(

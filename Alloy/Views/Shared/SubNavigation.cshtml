@@ -1,23 +1,30 @@
 @model IPageViewModel<SitePageData>
 
-@{
-    HelperResult ItemTemplate(HtmlHelpers.MenuItem item)
-    {
-        <li class="nav-item">
-            <a href="@Url.ContentUrl(item.Page.PageLink)" class="nav-link @(item.Selected ? " active" : null)">
-                @item.Page.PageName
-            </a>
-            @if (item.Selected)
-            {
-                <ul class="nav nav-pills flex-column">
-                    @Html.MenuList(item.Page.ContentLink, ItemTemplate)
-                </ul>
-            }
-        </li>
-        return new HelperResult(w => Task.CompletedTask);
-    }
+@helper ItemTemplate(HtmlHelpers.MenuItem firstLevelItem) {
+    <div class="accordion-heading">
+        <a href="@Url.ContentUrl(firstLevelItem.Page.PageLink)" class = "@(firstLevelItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink) ? "accordion-toggle active" : "accordion-toggle")" data-parent="#alloyDrop">
+            @firstLevelItem.Page.PageName
+            <i class="@(firstLevelItem.HasChildren.Value ? "icon-chevron-down right" : "right")"></i>
+        </a>
+    </div>
+    <div id="collapse-@firstLevelItem.Page.ContentLink.ID" class="accordion-body collapse @(firstLevelItem.Selected ? "in" : "")">
+        <ul>
+            @Html.MenuList(firstLevelItem.Page.ContentLink, SubLevelItemTemplate)
+        </ul>
+    </div>
 }
 
-<ul class="nav nav-pills flex-column mb-auto">
-    @Html.MenuList(Model.Section.ContentLink, ItemTemplate)
-</ul>
+@helper SubLevelItemTemplate(HtmlHelpers.MenuItem subLevelItem) {
+    <li class="@(subLevelItem.Selected ? "active" : null)">
+        @Html.PageLink(subLevelItem.Page)
+        @*To show more levels call Html.MenuList recursively here if subLevelItem.Selected == true*@
+    </li>
+}
+
+<div id="alloyDrop" class="accordion">
+    <div class="accordion-group">
+        @if(Model.Section != null) {
+            @Html.MenuList(Model.Section.ContentLink, ItemTemplate)
+        }
+    </div>
+</div>
