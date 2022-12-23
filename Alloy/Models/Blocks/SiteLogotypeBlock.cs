@@ -37,8 +37,13 @@ namespace Alloy.Models.Blocks
                 this.SetPropertyValue(b => b.Url, value);
             }
         }
-
+        public virtual string Width { 
+            get 
+            { 
+                return ""; 
+            } set { } }
         [CultureSpecific]
         public virtual string Title { get; set; }
+        public virtual string Alt { get; set; }
     }
 }
