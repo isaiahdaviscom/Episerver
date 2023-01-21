@@ -1,7 +1,16 @@
 @using EPiServer.Core
 @using EPiServer.Web
-@*Helper used as template for a page in the bread crumb, recursively triggering the rendering of the next page*@
-@helper ItemTemplate(HtmlHelpers.MenuItem breadCrumbItem) {
+@*
+    Helper used as template for a page in the bread crumb, recursively triggering the rendering of the next page
+    User Experience Improvements
+       - label current page
+       - label root page
+       - label previous page
+       - x role of section
+       - x order list to reflect page depth
+*@
+@helper ItemTemplate(HtmlHelpers.MenuItem breadCrumbItem)
+{
     if (breadCrumbItem.Selected)
     {
         if (breadCrumbItem.Page.HasTemplate() && !breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
@@ -10,35 +19,31 @@
         }
         else
         {
-            @breadCrumbItem.Page.PageName
+            <li aria-current="page">
+                @breadCrumbItem.Page.PageName
+            </li>
         }
         if (!breadCrumbItem.Page.ContentLink.CompareToIgnoreWorkID(Model.CurrentPage.ContentLink))
         {
-            <span class="divider">/</span>
-            @Html.MenuList(breadCrumbItem.Page.ContentLink, ItemTemplate)
+            <li aria-current="page">
+                @Html.MenuList(breadCrumbItem.Page.ContentLink, ItemTemplate)
+            </li>
         }
     }
 }
-<section class="container-fluid sc_breadcrumb_section">
-    <div class="container">
-        <ul class="sc_breadcrumb">
-            <li>
-                <a href="/en/">Home</a>
-            </li>
-            <li>
-                <a href="/en/products--services/">Products &amp; Services</a>
-            </li>
-            <li>
-                <a href="/en/products--services/products/">Products</a>
-            </li>
-            <li>
-                <span class="brand-dark-gray">VacuFuse<sup>®</sup> II Self-Resetting Interrupter</span>
-            </li>
-        </ul>
-        <ul class="mobile-sc_breadcrumb"><li class="mobile-chefron"><a href="/en/products--services/products/" class="small"> <span class="fas fa-chevron-left"></span>Products</a></li></ul>
-    </div>
-</section>
 
+<nav id="breadcrumb" class="container-fluid sc_breadcrumb_section" aria-label="Breadcrumb">
+    <div class="container">
+        <ol class="sc_breadcrumb">
+            <li aria-label="root">
+                @Html.ContentLink(SiteDefinition.Current.StartPage)
+            </li>
+            @*<li aria-current="page">*@
+            @Html.MenuList(SiteDefinition.Current.StartPage, ItemTemplate, requireVisibleInMenu: false, requirePageTemplate: false)
+            @*</li>*@
+        </ol>
+    </div>
+</nav>
 <div class="row hideMyTracks">
     <div class="span12">
         <ul class="alloyBreadcrumb">

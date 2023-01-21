@@ -1,9 +1,10 @@
 using System.Collections.Generic;
 using EPiServer.Core;
 using Alloy.Models.Pages;
-
+// namespace acts as a classname
 namespace Alloy.Models.ViewModels
 {
+    // class within namespace
     public class PreviewModel : PageViewModel<SitePageData>
     {
         public PreviewModel(SitePageData currentPage, IContent previewContent)

@@ -24,6 +24,7 @@ namespace Alloy.Models.Pages
                 var metaTitle = this.GetPropertyValue(p => p.MetaTitle);
 
                 // Use explicitly set meta title, otherwise fall back to page name
+                // https://learn.microsoft.com/en-us/dotnet/api/system.string.isnullorwhitespace?view=net-7.0
                 return !string.IsNullOrWhiteSpace(metaTitle)
                         ? metaTitle
                         : PageName;

@@ -6,24 +6,29 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Alloy.Models.Blocks
 {
-    [ContentType(DisplayName = "DefaultBlock", GUID = "34f6c17c-e1c7-46b7-a634-e7619b0eea95", Description = "A sample block.")]
-    public class DefaultBlock1 : BlockData
+    [ContentType(
+        GUID = "b67629cf-2cc9-4eb4-a6f3-1cc8fbebfe81", 
+        DisplayName = "Building Block", 
+        Description = "A Block for development"
+    )]
+    public class DefaultBlock : BlockData
     {
         [CultureSpecific]
         [Display(
-            Name = "Name",
-            Description = "Name field's description",
             GroupName = SystemTabNames.Content,
-            Order = 1)]
+            Order = 1,
+            Name = "Name",
+            Description = "Name field's description"
+        )]
         public virtual string Name
         {
             get; set;
         }
         [Display(
-            Name = "Image",
-            Description = "Add an image",
             GroupName = SystemTabNames.Content,
             Order = 2,
+            Name = "Image",
+            Description = "Add an image",
             Prompt = "SAMPLE X")]
         public virtual ContentReference Image { get; set; }
     }
